@@ -4,9 +4,9 @@ import mysql.connector.pooling as pooling
 from dotdict import DotDict
 
 class Database:
-    def __init__(self, config: dict, n_pool: int = 10, id_field: str = "id") -> None:
+    def __init__(self, config: dict, pool_size: int = 10, id_field: str = "id") -> None:
         self.config = config
-        self.n_pool = n_pool
+        self.pool_size = pool_size
         self.pool = None
         self.id_field = id_field
         self.tables = {}
@@ -14,7 +14,7 @@ class Database:
     def connect(self) -> DotDict:
         self.pool = pooling.MySQLConnectionPool(
             pool_name = "main",
-            pool_size = self.n_pool,
+            pool_size = self.pool_size,
             auth_plugin = "mysql_native_password",
             autocommit = True,
             **self.config
