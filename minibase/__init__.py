@@ -1,2 +1,2 @@
-from database import Database
-from dotdict import DotDict
+from .database import Database
+from .dotdict import DotDict
