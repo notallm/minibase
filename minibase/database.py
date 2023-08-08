@@ -49,6 +49,11 @@ class Database:
             cursor.close()
             conn.close()
 
+    def niceify(self, table: dict, output: list, remove_id: bool = False) -> list:
+        name = list(table.keys())[0]
+        fields = self.fetch_fields(name, remove_id = remove_id)
+        return [dict(zip(fields, value)) for value in output]
+
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
         if remove_id:
@@ -57,10 +62,7 @@ class Database:
 
     def create(self, table: dict, values: dict, auto_increment: bool = False) -> int:
         name = list(table.keys())[0]
-        if auto_increment:
-            fields = self.fetch_fields(name, remove_id = True)
-        else:
-            fields = self.fetch_fields(name, remove_id = False)
+        fields = self.fetch_fields(name, remove_id = auto_increment)
         spacers = ("%s, " * len(fields)).rstrip(", ")
         fields = str(tuple(fields)).replace("'", "")
         frame = f"INSERT INTO {name} {fields} VALUES ({spacers})"
