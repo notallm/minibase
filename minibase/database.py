@@ -33,10 +33,9 @@ class Database:
         return conn
 
     def execute(self, query: str, values: list = [], get_id: bool = False) -> object:
-        def inner() -> object:
-            global query, values, get_id
-            conn = self.fetch_conn()
-            cursor = conn.cursor()
+        conn = self.fetch_conn()
+        cursor = conn.cursor()
+        try:
             if len(values) > 0:
                 values = [str(value).replace("'", "\'") for value in values]
                 cursor.execute(query, values)
@@ -46,9 +45,8 @@ class Database:
                 return cursor.lastrowid
             else:
                 return cursor.fetchall()
-        ret = inner()
-        cursor.close()
-        return ret
+        finally:
+            cursor.close()
 
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
