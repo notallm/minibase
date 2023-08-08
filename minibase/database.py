@@ -51,9 +51,12 @@ class Database:
             fields.remove(self.id_field)
         return fields
 
-    def create(self, table: dict, values: dict) -> int:
+    def create(self, table: dict, values: dict, auto_increment: bool = False) -> int:
         name = list(table.keys())[0]
-        fields = self.fetch_fields(name, remove_id = False)
+        if auto_increment:
+            fields = self.fetch_fields(name, remove_id = True)
+        else:
+            fields = self.fetch_fields(name, remove_id = False)
         spacers = ("%s, " * len(fields)).rstrip(", ")
         fields = str(tuple(fields)).replace("'", "")
         frame = f"INSERT INTO {name} {fields} VALUES ({spacers})"
