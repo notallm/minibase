@@ -47,6 +47,7 @@ class Database:
                 return cursor.fetchall()
         finally:
             cursor.close()
+            conn.close()
 
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
