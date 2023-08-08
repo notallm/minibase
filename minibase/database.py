@@ -1,7 +1,7 @@
 import mysql.connector.connection as connection
 import mysql.connector.pooling as pooling
 
-from dotdict import DotDict
+from minibase.dotdict import DotDict
 
 class Database:
     def __init__(self, config: dict, pool_size: int = 10, id_field: str = "id") -> None:
