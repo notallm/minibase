@@ -72,7 +72,7 @@ class Database:
         frame = f"SELECT * FROM {name} WHERE {self.id_field} = %s"
         results = self.execute(frame, [uid])
         fields = self.fetch_fields(name)
-        return [dict(zip(fields, row)) for row in results]
+        return [dict(zip(fields, row)) for row in results][0]
 
     def update(self, table: dict, uid: object, column: str, value: str) -> None:
         name = list(table.keys())[0]
