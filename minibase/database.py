@@ -33,17 +33,22 @@ class Database:
         return conn
 
     def execute(self, query: str, values: list = [], get_id: bool = False) -> object:
-        conn = self.fetch_conn()
-        cursor = conn.cursor()
-        if len(values) > 0:
-            values = [str(value).replace("'", "\'") for value in values]
-            cursor.execute(query, values)
-        else:
-            cursor.execute(query)
-        if get_id:
-            return cursor.lastrowid
-        else:
-            return cursor.fetchall()
+        def inner() -> object:
+            global query, values, get_id
+            conn = self.fetch_conn()
+            cursor = conn.cursor()
+            if len(values) > 0:
+                values = [str(value).replace("'", "\'") for value in values]
+                cursor.execute(query, values)
+            else:
+                cursor.execute(query)
+            if get_id:
+                return cursor.lastrowid
+            else:
+                return cursor.fetchall()
+        ret = inner()
+        cursor.close()
+        return ret
 
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
