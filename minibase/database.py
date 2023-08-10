@@ -71,7 +71,8 @@ class Database:
         try:
             return self.execute(frame, values, get_id = True)
         except mysql.connector.errors.IntegrityError:
-            return self.execute(f"SELECT {self.id_field} FROM {name} GROUP BY {duplicate_check} HAVING COUNT(*) > 1")
+            duplicate = values[duplicate_check]
+            return self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = {duplicate}")
 
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
