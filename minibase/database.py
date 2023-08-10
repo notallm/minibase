@@ -72,7 +72,7 @@ class Database:
             return self.execute(frame, values_list, get_id = True)
         except mysql.connector.errors.IntegrityError:
             duplicate = values[duplicate_check]
-            return self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = {duplicate}")
+            return self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = %s", [duplicate])
 
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
