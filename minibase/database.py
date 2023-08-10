@@ -67,9 +67,9 @@ class Database:
         spacers = ("%s, " * len(fields)).rstrip(", ")
         fields = str(tuple(fields)).replace("'", "")
         frame = f"INSERT INTO {name} {fields} VALUES ({spacers})"
-        values = list(values.values())
+        values_list = list(values.values())
         try:
-            return self.execute(frame, values, get_id = True)
+            return self.execute(frame, values_list, get_id = True)
         except mysql.connector.errors.IntegrityError:
             duplicate = values[duplicate_check]
             return self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = {duplicate}")
