@@ -1,5 +1,6 @@
 import mysql.connector.connection as connection
 import mysql.connector.pooling as pooling
+import mysql.connector.errors
 
 from minibase.dotdict import DotDict
 
@@ -67,7 +68,10 @@ class Database:
         fields = str(tuple(fields)).replace("'", "")
         frame = f"INSERT INTO {name} {fields} VALUES ({spacers})"
         values = list(values.values())
-        return self.execute(frame, values, get_id = True)
+        try:
+            return self.execute(frame, values, get_id = True)
+        except mysql.connector.errors.IntegrityError:
+            pass
 
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
