@@ -61,7 +61,7 @@ class Database:
             fields.remove(self.id_field)
         return fields
 
-    def create(self, table: dict, values: dict, auto_increment: bool = False) -> int:
+    def create(self, table: dict, values: dict, duplicate_check: str = "name", auto_increment: bool = False) -> int:
         name = list(table.keys())[0]
         fields = self.fetch_fields(name, remove_id = auto_increment)
         spacers = ("%s, " * len(fields)).rstrip(", ")
@@ -71,7 +71,7 @@ class Database:
         try:
             return self.execute(frame, values, get_id = True)
         except mysql.connector.errors.IntegrityError:
-            pass
+            return self.execute(f"SELECT {self.id_field} FROM {name} GROUP BY {duplicate_check} HAVING COUNT(*) > 1")
 
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
