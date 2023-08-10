@@ -69,10 +69,10 @@ class Database:
         frame = f"INSERT INTO {name} {fields} VALUES ({spacers})"
         values_list = list(values.values())
         try:
-            return self.execute(frame, values_list, get_id = True)
+            return (True, self.execute(frame, values_list, get_id = True))
         except mysql.connector.errors.IntegrityError:
             duplicate = values[duplicate_check]
-            return self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = %s", [duplicate])
+            return (False, self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = %s", [duplicate])[0][0])
 
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
