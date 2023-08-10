@@ -61,7 +61,7 @@ class Database:
             fields.remove(self.id_field)
         return fields
 
-    def create(self, table: dict, values: dict, duplicate_check: str = "name", auto_increment: bool = False) -> int:
+    def create(self, table: dict, values: dict, duplicate_check: str = "name", auto_increment: bool = False) -> tuple:
         name = list(table.keys())[0]
         fields = self.fetch_fields(name, remove_id = auto_increment)
         spacers = ("%s, " * len(fields)).rstrip(", ")
@@ -81,10 +81,14 @@ class Database:
         fields = self.fetch_fields(name)
         return [dict(zip(fields, row)) for row in results][0]
 
-    def update(self, table: dict, uid: object, column: str, value: str) -> None:
+    def update(self, table: dict, uid: object, column: str, value: str) -> bool:
         name = list(table.keys())[0]
         frame = f"UPDATE {name} SET {column} = %s WHERE {self.id_field} = {uid}"
-        self.execute(frame, [value])
+        try:
+            self.execute(frame, [value])
+            return True
+        except mysql.connector.errors.IntegrityError:
+            return False
 
     def delete(self, table: dict, uid: object) -> None:
         name = list(table.keys())[0]
