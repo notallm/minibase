@@ -62,7 +62,8 @@ class Database:
         names = [list(table.keys())[0] for table in tables]
         fields = [self.fetch_fields(name) for name in names]
         query = f"SELECT * FROM {names[0]}"
-        query = " ".join([f"JOIN {names[i + 1]} on {ids[i]:}"
+        # query = " ".join([f"JOIN {names[i + 1]} on {ids[i]:}"
+        return None
 
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
