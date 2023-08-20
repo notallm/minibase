@@ -20,6 +20,9 @@ class Database:
             autocommit = True,
             **self.config
         )
+        return self.refresh()
+
+    def refresh(self) -> DotDict:
         tables = self.execute("show tables")
         for table in tables:
             name = table[0]
@@ -54,6 +57,12 @@ class Database:
         name = list(table.keys())[0]
         fields = self.fetch_fields(name, remove_id = remove_id)
         return [dict(zip(fields, value)) for value in output]
+
+    def joins(self, ids: list, tables: list) -> dict:
+        names = [list(table.keys())[0] for table in tables]
+        fields = [self.fetch_fields(name) for name in names]
+        query = f"SELECT * FROM {names[0]}"
+        query = " ".join([f"JOIN {names[i + 1]} on {ids[i]:}"
 
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
