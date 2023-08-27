@@ -5,6 +5,15 @@ import mysql.connector.errors
 from minibase.dotdict import DotDict
 
 import functools
+from frozendict import frozendict
+
+def freeze_args(fn: object) -> object:
+    @functools.wraps(fn)
+    def inner(*args, **kwargs):
+        args = tuple([frozendict(arg) if isinstance(arg, dict) else arg for arg in args])
+        kwargs = {k: frozendict(v) if isinstance(v, dict) else v for k, v in kwargs.items()}
+        return fn(*args, **kwargs)
+    return inner
 
 class Database:
     def __init__(self, config: dict, pool_size: int = 10, id_field: str = "id") -> None:
@@ -24,6 +33,7 @@ class Database:
         )
         return self.refresh()
 
+    @freeze_cache
     @functools.cache
     def refresh(self) -> DotDict:
         tables = self.execute("show tables")
@@ -39,6 +49,7 @@ class Database:
         conn = self.pool.get_connection()
         return conn
 
+    @freeze_cache
     @functools.cache
     def execute(self, query: str, values: list = [], get_id: bool = False) -> object:
         conn = self.fetch_conn()
@@ -57,6 +68,7 @@ class Database:
             cursor.close()
             conn.close()
 
+    @freeze_cache
     @functools.cache
     def niceify(self, table: dict, output: list, remove_id: bool = False) -> list:
         name = list(table.keys())[0]
@@ -70,6 +82,7 @@ class Database:
         # query = " ".join([f"JOIN {names[i + 1]} on {ids[i]:}"
         return None
 
+    @freeze_cache
     @functools.cache
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
@@ -90,6 +103,7 @@ class Database:
             duplicate = values[duplicate_check]
             return (False, self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = %s", [duplicate])[0][0])
 
+    @freeze_cache
     @functools.cache
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
