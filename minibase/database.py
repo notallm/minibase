@@ -4,8 +4,6 @@ import mysql.connector.errors
 
 from minibase.dotdict import DotDict
 
-import methodtools
-
 class Database:
     def __init__(self, config: dict, pool_size: int = 10, id_field: str = "id") -> None:
         self.config = config
@@ -24,7 +22,6 @@ class Database:
         )
         return self.refresh()
 
-    @methodtools.lru_cache()
     def refresh(self) -> DotDict:
         tables = self.execute("show tables")
         for table in tables:
@@ -39,7 +36,6 @@ class Database:
         conn = self.pool.get_connection()
         return conn
 
-    @methodtools.lru_cache()
     def execute(self, query: str, values: list = [], get_id: bool = False) -> object:
         conn = self.fetch_conn()
         cursor = conn.cursor()
@@ -57,7 +53,6 @@ class Database:
             cursor.close()
             conn.close()
 
-    @methodtools.lru_cache()
     def niceify(self, table: dict, output: list, remove_id: bool = False) -> list:
         name = list(table.keys())[0]
         fields = self.fetch_fields(name, remove_id = remove_id)
@@ -70,7 +65,6 @@ class Database:
         # query = " ".join([f"JOIN {names[i + 1]} on {ids[i]:}"
         return None
 
-    @methodtools.lru_cache()
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
         if remove_id:
@@ -90,7 +84,6 @@ class Database:
             duplicate = values[duplicate_check]
             return (False, self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = %s", [duplicate])[0][0])
 
-    @methodtools.lru_cache()
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
         frame = f"SELECT * FROM {name} WHERE {self.id_field} = %s"
