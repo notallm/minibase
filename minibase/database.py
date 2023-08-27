@@ -5,15 +5,6 @@ import mysql.connector.errors
 from minibase.dotdict import DotDict
 
 import methodtools
-from frozendict import frozendict
-
-def freeze_args(fn: object) -> object:
-    @methodtools.wraps(fn)
-    def inner(*args, **kwargs):
-        args = tuple([frozendict(arg) if isinstance(arg, dict) else arg for arg in args])
-        kwargs = {k: frozendict(v) if isinstance(v, dict) else v for k, v in kwargs.items()}
-        return fn(*args, **kwargs)
-    return inner
 
 class Database:
     def __init__(self, config: dict, pool_size: int = 10, id_field: str = "id") -> None:
