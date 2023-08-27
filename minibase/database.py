@@ -24,7 +24,6 @@ class Database:
         )
         return self.refresh()
 
-    @freeze_args
     @methodtools.lru_cache
     def refresh(self) -> DotDict:
         tables = self.execute("show tables")
@@ -40,7 +39,6 @@ class Database:
         conn = self.pool.get_connection()
         return conn
 
-    @freeze_args
     @methodtools.lru_cache
     def execute(self, query: str, values: list = [], get_id: bool = False) -> object:
         conn = self.fetch_conn()
@@ -59,7 +57,6 @@ class Database:
             cursor.close()
             conn.close()
 
-    @freeze_args
     @methodtools.lru_cache
     def niceify(self, table: dict, output: list, remove_id: bool = False) -> list:
         name = list(table.keys())[0]
@@ -73,7 +70,6 @@ class Database:
         # query = " ".join([f"JOIN {names[i + 1]} on {ids[i]:}"
         return None
 
-    @freeze_args
     @methodtools.lru_cache
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
@@ -94,7 +90,6 @@ class Database:
             duplicate = values[duplicate_check]
             return (False, self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = %s", [duplicate])[0][0])
 
-    @freeze_args
     @methodtools.lru_cache
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
