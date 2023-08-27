@@ -4,11 +4,11 @@ import mysql.connector.errors
 
 from minibase.dotdict import DotDict
 
-import functools
+import methodtools
 from frozendict import frozendict
 
 def freeze_args(fn: object) -> object:
-    @functools.wraps(fn)
+    @methodtools.wraps(fn)
     def inner(*args, **kwargs):
         args = tuple([frozendict(arg) if isinstance(arg, dict) else arg for arg in args])
         kwargs = {k: frozendict(v) if isinstance(v, dict) else v for k, v in kwargs.items()}
@@ -34,7 +34,7 @@ class Database:
         return self.refresh()
 
     @freeze_args
-    @functools.cache
+    @methodtools.cache
     def refresh(self) -> DotDict:
         tables = self.execute("show tables")
         for table in tables:
@@ -50,7 +50,7 @@ class Database:
         return conn
 
     @freeze_args
-    @functools.cache
+    @methodtools.cache
     def execute(self, query: str, values: list = [], get_id: bool = False) -> object:
         conn = self.fetch_conn()
         cursor = conn.cursor()
@@ -69,7 +69,7 @@ class Database:
             conn.close()
 
     @freeze_args
-    @functools.cache
+    @methodtools.cache
     def niceify(self, table: dict, output: list, remove_id: bool = False) -> list:
         name = list(table.keys())[0]
         fields = self.fetch_fields(name, remove_id = remove_id)
@@ -83,7 +83,7 @@ class Database:
         return None
 
     @freeze_args
-    @functools.cache
+    @methodtools.cache
     def fetch_fields(self, table: str, remove_id: bool = False) -> list:
         fields = list(self.tables[table].keys())
         if remove_id:
@@ -104,7 +104,7 @@ class Database:
             return (False, self.execute(f"SELECT {self.id_field} FROM {name} WHERE {duplicate_check} = %s", [duplicate])[0][0])
 
     @freeze_args
-    @functools.cache
+    @methodtools.cache
     def read(self, table: dict, uid: object) -> list:
         name = list(table.keys())[0]
         frame = f"SELECT * FROM {name} WHERE {self.id_field} = %s"
